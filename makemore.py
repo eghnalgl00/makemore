@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import matplotlib.pyplot as plt
 
 # Find all the names from the list
 words = open("names.txt" , "r").read().splitlines()
@@ -20,8 +19,7 @@ sorted_b = dict(sorted(b.items(), key=lambda kv: -kv[1])
 N = torch.zeros((27,27) , dtype = torch.int)
 # Index all chars -> Char : Index {a:0 , b:1 ...}
 chars = sorted(list(set("".join(words))))
-stoi = {s:i+1 for i , s in enumerate(chars)}
-stoi["."]= 0
+stoi = {s:i+1 for i , s in enumerate(chars)} ;stoi["."]= 0
 itos = {i+1:s for i , s in enumerate(chars)} ; itos[0] = "."
 
 #Create the tensor to list the count of each pair
@@ -46,14 +44,22 @@ p = p / p.sum()
 ix = torch.multinomial(p , num_samples = 1 , replacement = True, generator = g).item()
 """
 
+P = N.double()
+P = P / P.sum(dim = -1, keepdim = True) # (27,27) / (27,1) -> Broadcast : Shape(27,27)
+
+
+
 g = torch.Generator().manual_seed(2147483647)
 out = []
 for i in range(10):
     ix = 0
     word = ""
     while True:
+        """
         p = N[ix].float()
-        p = p/p.sum()
+        p = p/p.sum()  
+        """   
+        p = P[ix] 
         ix = torch.multinomial(p,num_samples = 1 , replacement = True, generator = g).item()
         ch = itos[ix] 
         if ch == ".":
@@ -61,6 +67,15 @@ for i in range(10):
         word += ch
     out.append(word)    
 
-print(out)
+"""
+a = torch.randn(10,)
+b = torch.randn(10,1)
+print(torch.broadcast_shapes(a.shape , b.shape)) #(10,10)
+print((a+b)[0,1] == a[1] + b[0]) #True
+
+x = torch.tensor([1,2,3])
+x = x.unsqueeze(1)
+print(x)
+"""
 
 
