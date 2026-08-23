@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import matplotlib.pyplot as plt
 
 # Find all the names from the list
@@ -30,3 +31,36 @@ for w in words:
         ix1 = stoi[ch1]
         ix2 = stoi[ch2]
         N[ix1,ix2] += 1
+
+"""
+p = N[0].float()
+p = p / p.sum() # probability distribution
+
+#initialize a generator with manual seed -> reproduce the same p every time
+g = torch.Generator().manual_seed(2147483647)
+
+p = torch.rand(3, generator = g)
+p = p / p.sum()
+
+# sample according to p and generator g -> outputs indices
+ix = torch.multinomial(p , num_samples = 1 , replacement = True, generator = g).item()
+"""
+
+g = torch.Generator().manual_seed(2147483647)
+out = []
+for i in range(10):
+    ix = 0
+    word = ""
+    while True:
+        p = N[ix].float()
+        p = p/p.sum()
+        ix = torch.multinomial(p,num_samples = 1 , replacement = True, generator = g).item()
+        ch = itos[ix] 
+        if ch == ".":
+            break
+        word += ch
+    out.append(word)    
+
+print(out)
+
+
