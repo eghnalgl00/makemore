@@ -4,6 +4,17 @@ import torch.nn as nn
 # Find all the names from the list
 words = open("names.txt" , "r").read().splitlines()
 
+"""
+b = {}
+#iterate throgh pairs in words , with Start and End .
+for w in words:
+    chs = ["<S>"] + list(w) + ["<E>"]
+    for ch1 , ch2 in zip(chs, chs[1:]):
+        bigram = (ch1 ,ch2)
+        b[bigram] = 1 + b.get(bigram,0)
+        
+sorted_b = dict(sorted(b.items(), key=lambda kv: -kv[1])
+"""
 
 N = torch.zeros((27,27) , dtype = torch.int)
 # Index all chars -> Char : Index {a:0 , b:1 ...}
@@ -19,6 +30,19 @@ for w in words:
         ix2 = stoi[ch2]
         N[ix1,ix2] += 1
 
+"""
+p = N[0].float()
+p = p / p.sum() # probability distribution
+
+#initialize a generator with manual seed -> reproduce the same p every time
+g = torch.Generator().manual_seed(2147483647)
+
+p = torch.rand(3, generator = g)
+p = p / p.sum()
+
+# sample according to p and generator g -> outputs indices
+ix = torch.multinomial(p , num_samples = 1 , replacement = True, generator = g).item()
+"""
 
 P = N.double()
 P = P / P.sum(dim = -1, keepdim = True) # (27,27) / (27,1) -> Broadcast : Shape(27,27)
@@ -43,5 +67,15 @@ for i in range(10):
         word += ch
     out.append(word)    
 
+"""
+a = torch.randn(10,)
+b = torch.randn(10,1)
+print(torch.broadcast_shapes(a.shape , b.shape)) #(10,10)
+print((a+b)[0,1] == a[1] + b[0]) #True
+
+x = torch.tensor([1,2,3])
+x = x.unsqueeze(1)
+print(x)
+"""
 
 
